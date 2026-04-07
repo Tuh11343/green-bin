@@ -200,32 +200,6 @@ class DioClient {
     }
   }
 
-  /// Upload file với FormData
-  Future<Response<T>> upload<T>(
-      String path, {
-        required FormData formData,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
-    try {
-      final response = await _dio.post<T>(
-        path,
-        data: formData,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onSendProgress: onSendProgress,
-        onReceiveProgress: onReceiveProgress,
-      );
-      return response;
-    } catch(err) {
-      rethrow;
-    }
-  }
-
   void setConnectTimeout(Duration duration) {
     _dio.options.connectTimeout = duration;
   }
