@@ -2,7 +2,7 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   static const String baseUrl = 'http://192.168.1.194:5000';
-  static const int timeOut = 10;
+  static const int timeOut = 5;
 
   // ==================== AUTH ENDPOINTS ====================
   static const String login = '/api/v1/auth/login';
@@ -13,7 +13,7 @@ class ApiEndpoints {
   static const String changePassword = '/api/v1/auth/change-password';
   static const String verifyOtp = '/api/v1/auth/verify-otp';
   static const String resendOtp = '/api/v1/auth/resend-otp';
-  static const String googleSignIn = '/api/v1/auth/googleSignIn';
+  static const String googleSignIn = '/api/v1/auth/google';
 
   // ==================== REWARD ENDPOINTS ====================
   static const String getAllRewards = '/api/v1/rewards';

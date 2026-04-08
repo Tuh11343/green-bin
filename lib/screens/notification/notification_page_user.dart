@@ -302,7 +302,7 @@ class _UserNotificationPageState extends State<UserNotificationPage> {
             'Thông báo',
             style: TextStyle(
               color: AppColors.textDark,
-              fontSize: AppFontSize.displayMedium,
+              fontSize: AppFontSize.headlineSmall,
               fontWeight: FontWeight.w600,
             ),
           ),

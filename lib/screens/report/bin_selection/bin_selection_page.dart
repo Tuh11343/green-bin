@@ -191,7 +191,7 @@ class _BinSelectionPageState extends State<BinSelectionPage> {
         'Bản đồ thùng rác',
         style: TextStyle(
           color: AppColors.textDark,
-          fontSize: AppFontSize.displayMedium,
+          fontSize: AppFontSize.headlineSmall,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -407,7 +407,6 @@ class _BinSelectionPageState extends State<BinSelectionPage> {
     }).toList();
   }
 
-  /// 📋 Filter dialog
   void _showFilterDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:greenbin/bloc/app/app_cubit.dart';
 import 'package:greenbin/widgets/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -50,6 +51,8 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
     super.initState();
 
     final currentUser = context.read<UserCubit>().state.user;
+
+    context.read<AppCubit>().toggleBottomBar(false);
 
     _nameController = TextEditingController(text: currentUser?.name ?? '');
     _emailController = TextEditingController(text: currentUser?.email ?? '');
@@ -135,12 +138,15 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
       listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
         if (state.status == UserProfileStatus.loading) {
-          AppDialog.loadingDialog(context);
+          debugPrint('Dang loading');
+          // AppDialog.showLoading(context);
           return;
         }
 
-        // Đóng loading dialog trước
-        if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+        // //Đóng loading dialog
+        // if (Navigator.of(context, rootNavigator: true).canPop()) {
+        //   Navigator.of(context, rootNavigator: true).pop();
+        // }
 
         if (state.status == UserProfileStatus.success) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -160,70 +166,77 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
       builder: (context, state) {
         User? truthUser = context.read<UserCubit>().state.user;
 
-        return Scaffold(
-          backgroundColor: Colors.grey[50],
-          appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            title: const CustomText(
-              'Cập nhật hồ sơ',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-            centerTitle: true,
-            elevation: 0,
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildAvatarSection(
-                    localImage: state.imageBytes,
-                    remoteUrl: truthUser?.imageUrl,
-                  ),
-                  const SizedBox(height: 32),
-
-                  _buildSectionHeader('Thông tin cá nhân'),
-                  CustomTextField(
-                    textFontSize: AppFontSize.bodyLarge,
-                    labelText: 'Họ và tên',
-                    controller: _nameController,
-                    prefixIcon: Icons.person,
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Vui lòng nhập tên'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  CustomTextField(
-                    textFontSize: AppFontSize.bodyLarge,
-                    labelText: 'Email',
-                    controller: _emailController,
-                    prefixIcon: Icons.email,
-                    readOnly: true,
-                  ),
-
-                  // Chỉ hiện đổi mật khẩu nếu không phải social login
-                  if (truthUser?.isSocialLogin == false) ...[
-                    const SizedBox(height: 24),
-                    _buildSectionHeader('Đổi mật khẩu'),
-                    _buildPasswordFields(),
-                  ],
-
-                  const SizedBox(height: 40),
-                  _buildSubmitButton(context, state),
-                ],
+        return PopScope(
+            canPop: true,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) {
+                context.read<AppCubit>().toggleBottomBar(true);
+              }
+              return;
+            },
+            child: Scaffold(
+              backgroundColor: Colors.grey[50],
+              appBar: AppBar(
+                backgroundColor: AppColors.primary,
+                title: const CustomText(
+                  'Cập nhật hồ sơ',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                centerTitle: true,
+                elevation: 0,
               ),
-            ),
-          ),
-        );
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildAvatarSection(
+                        localImage: state.imageBytes,
+                        remoteUrl: truthUser?.imageUrl,
+                      ),
+                      const SizedBox(height: 32),
+
+                      _buildSectionHeader('Thông tin cá nhân'),
+                      CustomTextField(
+                        textFontSize: AppFontSize.bodyLarge,
+                        labelText: 'Họ và tên',
+                        controller: _nameController,
+                        prefixIcon: Icons.person,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Vui lòng nhập tên'
+                            : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      CustomTextField(
+                        textFontSize: AppFontSize.bodyLarge,
+                        labelText: 'Email',
+                        controller: _emailController,
+                        prefixIcon: Icons.email,
+                        readOnly: true,
+                      ),
+
+                      // Chỉ hiện đổi mật khẩu nếu không phải social login
+                      if (truthUser?.isSocialLogin == false) ...[
+                        const SizedBox(height: 24),
+                        _buildSectionHeader('Đổi mật khẩu'),
+                        _buildPasswordFields(),
+                      ],
+
+                      const SizedBox(height: 40),
+                      _buildSubmitButton(context, state),
+                    ],
+                  ),
+                ),
+              ),
+            ));
       },
     );
   }
-
 
   Widget _buildAvatarSection({Uint8List? localImage, String? remoteUrl}) {
     ImageProvider? avatarImage;

@@ -79,7 +79,6 @@ class _RewardPageState extends State<RewardPage>
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(width: 48), // cân bằng với nút back
                 ],
               ),
             ),

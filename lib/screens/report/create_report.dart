@@ -510,7 +510,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
               'Báo cáo vấn đề',
               style: TextStyle(
                 color: AppColors.textDark,
-                fontSize: AppFontSize.displayMedium,
+                fontSize: AppFontSize.headlineSmall,
                 fontWeight: FontWeight.w600,
               ),
             ),

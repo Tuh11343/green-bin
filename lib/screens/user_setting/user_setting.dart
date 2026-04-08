@@ -31,7 +31,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
         title: const Text(
           'Cài đặt',
           style: TextStyle(
-              fontSize: AppFontSize.displayMedium, color: Colors.white),
+              fontSize: AppFontSize.headlineSmall, color: Colors.white),
         ),
         centerTitle: true,
       ),

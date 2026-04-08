@@ -114,7 +114,7 @@ class BinDetailSheet extends StatelessWidget {
                             Text(
                               'Thùng rác #${bin.id}',
                               style: const TextStyle(
-                                fontSize: AppFontSize.displayMedium,
+                                fontSize: AppFontSize.headlineSmall,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textDark,
                               ),
@@ -380,7 +380,7 @@ class FilterBottomSheet extends StatelessWidget {
                   const Text(
                     'Lọc thùng rác',
                     style: TextStyle(
-                      fontSize: AppFontSize.displayMedium,
+                      fontSize: AppFontSize.headlineSmall,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textDark,
                     ),

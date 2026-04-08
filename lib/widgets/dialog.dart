@@ -123,30 +123,36 @@ class AppDialog {
     );
   }
 
-  static Widget loadingDialog(BuildContext context) {
-    return PopScope(
-      canPop: false, // ← chặn back button vật lý
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Đang xử lý...'),
-              ],
+  static void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Người dùng không thể nhấn ra ngoài để đóng
+      builder: (context) {
+        return PopScope(
+          canPop: false, // Chặn nút back vật lý
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Đang xử lý...'),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
