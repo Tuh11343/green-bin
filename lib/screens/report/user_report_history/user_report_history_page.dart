@@ -188,36 +188,51 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lịch sử báo cáo'),
-        centerTitle: true,
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: BlocBuilder<UserReportHistoryBloc, UserReportHistoryState>(
-        builder: (context, state) {
-          return Column(
-            children: [
-              StatsBar(reports: state.reportResponses.toReportList()),
-              const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: _showSortAndFilterBottomSheet,
-                  icon: const Icon(Icons.tune_rounded),
-                  label: const Text('Lọc & Sắp xếp'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+          if(didPop){
+            context.read<AppCubit>().toggleBottomBar(true);
+          }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Lịch sử báo cáo'),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AppCubit>().toggleBottomBar(true);
+            },
+          ),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: BlocBuilder<UserReportHistoryBloc, UserReportHistoryState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                StatsBar(reports: state.reportResponses.toReportList()),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: _showSortAndFilterBottomSheet,
+                    icon: const Icon(Icons.tune_rounded),
+                    label: const Text('Lọc & Sắp xếp'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 5),
-              Expanded(child: _buildBody(state)),
-            ],
-          );
-        },
+                const SizedBox(height: 5),
+                Expanded(child: _buildBody(state)),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

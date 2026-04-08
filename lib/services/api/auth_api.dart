@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:greenbin/utils/api_parser.dart';
 
 import '../../configs/api_endpoint.dart';
@@ -67,9 +68,12 @@ class AuthApi {
         ApiEndpoints.googleSignIn,
         data: {'firebaseIdToken': firebaseIdToken},
       );
+      debugPrint('user data:${res}');
       final Map<String, dynamic> actualData = res.data['data'];
       // Đút token từ bên ngoài vào bên trong map của user
       actualData['user']['token'] = actualData['token'];
+
+
       return ApiParser.parseData(
           response: res, fromJson: User.fromJson, dataKey: 'user');
     } catch (e) {

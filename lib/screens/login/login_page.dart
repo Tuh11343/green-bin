@@ -47,31 +47,29 @@ class _LoginPageState extends State<LoginPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
         body: BlocListener<AuthCubit, AuthState>(
           listenWhen: (prev, curr) =>
-              prev.status != curr.status || prev.action != curr.action,
+              prev.status != curr.status && curr.action == AuthAction.login,
           listener: (context, state) {
-            if (state.status == AuthStatus.loading &&
-                state.action == AuthAction.login) {
-              AppDialog.loadingDialog(context);
-            }
+            if (state.action != AuthAction.login) return;
 
-            if (state.status != AuthStatus.loading) {
+            if (state.status == AuthStatus.loading) {
+              AppDialog.showLoading(context);
+            } else {
               if (Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }
             }
 
-            if (state.action != AuthAction.login) return;
-
             if (state.status == AuthStatus.failure) {
-              AppDialog.showAlert(context, title: 'Lỗi', message: state.message??"Có lỗi xảy ra");
+              AppDialog.showAlert(context,
+                  title: 'Lỗi', message: state.message ?? "Có lỗi xảy ra");
             }
 
             if (state.status == AuthStatus.success &&
                 state.action == AuthAction.login) {
-
               if (state.user!.role == UserRole.resident) {
                 context.go('/home'); //Check lại
               } else if (state.user!.role == UserRole.collector) {
@@ -145,12 +143,15 @@ class _LoginPageState extends State<LoginPage> {
         const Text(
           "GreenBin Chào Mừng",
           style: TextStyle(
-              fontSize: AppFontSize.headlineLarge, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              fontSize: AppFontSize.headlineLarge,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5),
         ),
         const SizedBox(height: 8),
         Text(
           "Hành động nhỏ cho hành tinh xanh",
-          style: TextStyle(color: Colors.grey.shade500, fontSize: AppFontSize.bodyLarge),
+          style: TextStyle(
+              color: Colors.grey.shade500, fontSize: AppFontSize.bodyLarge),
         ),
       ],
     );
@@ -214,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLoginButton() {
     return BlocBuilder<AuthCubit, AuthState>(
       buildWhen: (prev, curr) =>
-          prev.status != curr.status || prev.action != curr.action,
+          prev.status != curr.status && curr.action == AuthAction.login,
       builder: (context, state) {
         final isLoading = state.status == AuthStatus.loading &&
             state.action == AuthAction.login;
@@ -229,22 +230,13 @@ class _LoginPageState extends State<LoginPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            child: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Text(
-                    "ĐĂNG NHẬP",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
+            child: const Text(
+              "ĐĂNG NHẬP",
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
           ),
         );
       },
@@ -254,10 +246,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildGoogleLogin() {
     return BlocBuilder<AuthCubit, AuthState>(
       buildWhen: (prev, curr) =>
-          prev.status != curr.status || prev.action != curr.action,
+          prev.status != curr.status && curr.action == AuthAction.login,
       builder: (context, state) {
         final isLoading = state.status == AuthStatus.loading &&
-            state.action == AuthAction.google;
+            state.action == AuthAction.login;
 
         return OutlinedButton(
           onPressed: isLoading
@@ -269,31 +261,21 @@ class _LoginPageState extends State<LoginPage> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: isLoading
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.primary,
-                  ),
-                )
-              : const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(FontAwesomeIcons.google,
-                        size: 24, color: Colors.red),
-                    SizedBox(width: 12),
-                    Text(
-                      "Google",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                        fontSize: AppFontSize.bodyLarge,
-                      ),
-                    ),
-                  ],
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FaIcon(FontAwesomeIcons.google, size: 24, color: Colors.red),
+              SizedBox(width: 12),
+              Text(
+                "Google",
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600,
+                  fontSize: AppFontSize.bodyLarge,
                 ),
+              ),
+            ],
+          ),
         );
       },
     );

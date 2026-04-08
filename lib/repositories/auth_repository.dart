@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../configs/exception.dart';
 import '../models/user.dart';
@@ -99,6 +100,8 @@ class AuthRepository implements IAuthRepository {
 
       final user =
       await _api.googleSignIn(firebaseIdToken: firebaseIdToken);
+
+      debugPrint("Token nguồi dùng:${user.token}");
 
       await AppStorage.saveUser(user);
       await AppStorage.saveToken(user.token!);

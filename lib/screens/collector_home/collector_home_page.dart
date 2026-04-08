@@ -109,7 +109,7 @@ class _CollectorHomePageState extends State<CollectorHomePage> {
           const Text(
             'Nguyễn Văn A',
             style: TextStyle(
-              fontSize: AppFontSize.displayMedium,
+              fontSize: AppFontSize.headlineSmall,
               color: Colors.white,
               fontWeight: FontWeight.w700,
             ),

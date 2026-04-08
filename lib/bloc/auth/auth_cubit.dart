@@ -81,7 +81,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signInWithGoogle() async {
     emit(state.copyWith(
       status: AuthStatus.loading,
-      action: AuthAction.google,
+      action: AuthAction.login,
       clearMessage: true,
     ));
 
@@ -91,21 +91,21 @@ class AuthCubit extends Cubit<AuthState> {
       if (user == null) {
         emit(state.copyWith(
           status: AuthStatus.initial,
-          action: AuthAction.google,
+          action: AuthAction.login,
         ));
         return;
       }
 
       emit(state.copyWith(
         status: AuthStatus.success,
-        action: AuthAction.google,
+        action: AuthAction.login,
         user: user,
         message: 'Đăng nhập Google thành công',
       ));
     } catch (e) {
       emit(state.copyWith(
         status: AuthStatus.failure,
-        action: AuthAction.google,
+        action: AuthAction.login,
         message: e.toString(),
       ));
     }

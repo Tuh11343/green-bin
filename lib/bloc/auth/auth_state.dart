@@ -6,7 +6,7 @@ enum AuthStatus { initial, loading, success, failure }
 enum AuthAction {
   login,
   register,
-  google,
+  // google,
   forgotPassword,
   verifyOtp,
   resetPassword,

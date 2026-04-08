@@ -323,8 +323,8 @@ class UserHomePageState extends State<UserHomePage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
-              TextButton(
-                onPressed: () {
+              GestureDetector(
+                onTap: () {
                   context.pushNamed('userReportHistory');
                 },
                 child: const CustomText(
@@ -391,7 +391,8 @@ class UserHomePageState extends State<UserHomePage> {
               task['titleColor'],
               task['descriptionColor'],
               () {
-                if (task['title'] == 'Bản Đồ') {
+                if (task['title'] == 'Báo cáo') {
+                  debugPrint('gọi đi');
                   context.pushNamed('report');
                 } else if (task['title'] == 'Báo Cáo') {
                   context.pushNamed('userReportHistory');
@@ -415,10 +416,9 @@ class UserHomePageState extends State<UserHomePage> {
     Color descriptionColor,
     VoidCallback onTap,
   ) {
-    return InkWell(
-      // Dùng InkWell thay MouseRegion để có hiệu ứng nhấn (Ripple)
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      // borderRadius: BorderRadius.circular(14),
       child: CustomCard(
         color: cardColor,
         borderRadius: 14,

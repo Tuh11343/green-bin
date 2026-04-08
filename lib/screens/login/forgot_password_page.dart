@@ -55,8 +55,22 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listenWhen: (prev, curr) =>
-          prev.status != curr.status || prev.action != curr.action,
+          prev.status != curr.status, // không cần check bởi vì đâu có chỗ nào dùng thằng Auth dưới
       listener: (context, state) {
+        if (state.action != AuthAction.forgotPassword &&
+            state.action != AuthAction.verifyOtp &&
+            state.action != AuthAction.resetPassword) {
+          return;
+        }
+
+        if (state.status == AuthStatus.loading) {
+          AppDialog.showLoading(context);
+        } else {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        }
+
         if (state.status == AuthStatus.failure) {
           AppDialog.showAlert(context,
               title: 'Lỗi', message: state.message ?? 'Có lỗi xảy ra');
@@ -70,16 +84,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             setState(() => _currentStep = 3);
           } else if (state.action == AuthAction.resetPassword &&
               _currentStep == 3) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Đổi mật khẩu thành công!")),
-            );
-            context.pop();
+            AppDialog.showAlert(context, title: 'Thông báo', message: 'Đổi mật khẩu thành công',onAction: () => context.pop(),);
+
+            // context.pop();
           }
         }
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
+          resizeToAvoidBottomInset: true,
           backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white,
@@ -183,6 +197,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Widget _buildSubmitButton() {
     return BlocBuilder<AuthCubit, AuthState>(
+      buildWhen: (previous, current) => previous.status!=current.status,
       builder: (context, state) {
         final isLoading = state.status == AuthStatus.loading;
         String text = _currentStep == 1

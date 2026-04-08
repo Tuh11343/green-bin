@@ -57,12 +57,12 @@ class _RewardProductTabState extends State<RewardProductTab>
     return BlocListener<RewardBloc, RewardState>(
         listenWhen: (prev, curr) => prev.redeemStatus != curr.redeemStatus,
         listener: (context, state) {
-          if (state.redeemStatus != RedeemStatus.loading &&
-              Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
+          // if (state.redeemStatus != RedeemStatus.loading &&
+          //     Navigator.of(context).canPop()) {
+          //   Navigator.of(context).pop();
+          // }
           if (state.redeemStatus == RedeemStatus.loading) {
-            AppDialog.loadingDialog(context);
+            // AppDialog.showLoading(context);
           } else if (state.redeemStatus == RedeemStatus.success) {
             AppDialog.showAlert(context,
                 title: 'Thông báo', message: 'Đổi quà thành công');
@@ -427,7 +427,7 @@ class _RewardCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: CustomText(reward.name,
-            fontSize: AppFontSize.displaySmall, fontWeight: FontWeight.bold),
+            fontSize: AppFontSize.bodyLarge, fontWeight: FontWeight.bold),
         content: CustomText(
             'Bạn có chắc chắn muốn dùng ${reward.point} điểm để nhận quà này?'),
         actions: [

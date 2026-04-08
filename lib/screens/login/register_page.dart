@@ -12,6 +12,7 @@ import '../../bloc/auth/auth_state.dart';
 import '../../configs/app_color.dart';
 import '../../configs/validation.dart';
 import '../../widgets/custom_text_field.dart';
+import '../../widgets/snack_bar.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -40,6 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // Gọi hàm signUp từ Cubit
   void _onSignUpPressed() {
+    FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
     if (!_agreeTerms) {
       AppDialog.showAlert(context,
@@ -59,6 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -71,23 +74,26 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         body: BlocListener<AuthCubit, AuthState>(
           listenWhen: (previous, current) =>
-              previous.status != current.status ||
-              previous.action != current.action,
+              previous.status != current.status &&
+              current.action == AuthAction.register,
           listener: (context, state) {
             if (state.action != AuthAction.register) return;
+
+            if (state.status == AuthStatus.loading) {
+              AppDialog.showLoading(context);
+            } else {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            }
 
             if (state.status == AuthStatus.failure) {
               AppDialog.showAlert(context,
                   title: 'Thông báo', message: 'Đăng ký thất bại');
             }
             if (state.status == AuthStatus.success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text("Đăng ký thành công!"),
-                    backgroundColor: Colors.green),
-              );
-
-              context.go('/home'); //Lưu ý thằng này chưa phân role
+              AppDialog.showAlert(context, title: 'Thông báo', message: 'Đăng ký thành công',onAction: () => context.go('/home'),);
+              // context.go('/home'); //Lưu ý thằng này chưa phân role
             }
           },
           child: SafeArea(
@@ -250,7 +256,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _buildSignUpButton() {
     return BlocBuilder<AuthCubit, AuthState>(
-      buildWhen: (previous, current) => previous.status != current.status,
+      buildWhen: (previous, current) =>
+          previous.status != current.status &&
+          current.action == AuthAction.register,
       builder: (context, state) {
         final isLoading = state.status == AuthStatus.loading;
 
@@ -275,17 +283,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   borderRadius: BorderRadius.circular(12)),
               elevation: 0,
             ),
-            child: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
-                  )
-                : const CustomText("ĐĂNG KÝ NGAY",
-                    fontSize: AppFontSize.bodyLarge,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+            child: const CustomText("ĐĂNG KÝ NGAY",
+                fontSize: AppFontSize.bodyLarge,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
         );
       },
