@@ -7,13 +7,19 @@ enum UserReportHistorySort { newest, oldest }
 
 enum UserReportHistoryStatus { initial, loading, loadingMore, success, failure }
 
+enum ReportFilterCriteria {
+  all,
+  pending, processing, completed, cancelled
+
+}
+
 class UserReportHistoryState extends Equatable {
   final List<ReportDetailResponse> reportResponses;
   final UserReportHistoryStatus status;
   final int? nextCursor;
   final bool hasMore;
   final UserReportHistorySort sortBy;
-  final ReportStatus? filterCriteria;
+  final ReportFilterCriteria filterCriteria;
   final String? errorMessage;
 
   const UserReportHistoryState({
@@ -22,7 +28,7 @@ class UserReportHistoryState extends Equatable {
     this.nextCursor,
     this.hasMore = true,
     this.sortBy = UserReportHistorySort.newest,
-    this.filterCriteria,
+    this.filterCriteria=ReportFilterCriteria.all,
     this.errorMessage,
   });
 
@@ -33,8 +39,7 @@ class UserReportHistoryState extends Equatable {
     bool? hasMore,
     UserReportHistorySort? sortBy,
     String? errorMessage,
-    ReportStatus? filterCriteria,
-    bool clearFilterCriteria = false,
+    ReportFilterCriteria? filterCriteria,
   }) {
     return UserReportHistoryState(
       reportResponses: reportResponses ?? this.reportResponses,
@@ -42,19 +47,19 @@ class UserReportHistoryState extends Equatable {
       nextCursor: nextCursor ?? this.nextCursor,
       hasMore: hasMore ?? this.hasMore,
       sortBy: sortBy ?? this.sortBy,
-      filterCriteria: clearFilterCriteria ? null : (filterCriteria ?? this.filterCriteria),
+      filterCriteria: filterCriteria ?? this.filterCriteria,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-    reportResponses,
-    status,
-    nextCursor,
-    hasMore,
-    filterCriteria,
-    sortBy,
-    errorMessage,
-  ];
+        reportResponses,
+        status,
+        nextCursor,
+        hasMore,
+        filterCriteria,
+        sortBy,
+        errorMessage,
+      ];
 }

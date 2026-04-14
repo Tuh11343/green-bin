@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:greenbin/services/http/dio_client.dart';
+import 'package:greenbin/utils/api_parser.dart';
 
 import '../../configs/api_endpoint.dart';
 import '../../configs/api_error_handle.dart';
@@ -10,57 +12,15 @@ import '../../models/collection_task.dart';
 class BinApi {
   final DioClient _dioClient = DioClient();
 
-  T _parseData<T>(
-      Response response,
-      T Function(Map<String, dynamic>) fromJson,
-      ) {
-    final responseData = response.data;
-
-    final actualData = responseData['data'];
-
-    if (actualData == null) {
-      throw ServerException(responseData['message']);
-    }
-
-    if (actualData is Map<String, dynamic> &&
-        actualData.containsKey('bin')) {
-      return fromJson(actualData['bin'] as Map<String, dynamic>);
-    }
-
-    return fromJson(actualData as Map<String, dynamic>);
-  }
-
-  List<T> _parseListData<T>(
-      Response response,
-      T Function(Map<String, dynamic>) fromJson,
-      ) {
-    final responseData = response.data;
-    final actualData = responseData['data'];
-
-    if (actualData == null) {
-      throw ServerException(responseData['message'] ?? "Lỗi không xác định");
-    }
-
-    if (actualData is Map<String, dynamic> &&
-        actualData.containsKey('bins')) {
-      final List<dynamic> list = actualData['bins'];
-      return list
-          .map((item) => fromJson(item as Map<String, dynamic>))
-          .toList();
-    }
-
-    return [];
-  }
-
-
   Future<List<Bin>> getAllBins() async {
     try {
       final response = await _dioClient.get(
         ApiEndpoints.getAllBins,
       );
 
-      return _parseListData(response, Bin.fromJson);
+      return ApiParser.parseListData(response: response,fromJson: Bin.fromJson,listKey: 'bins');
     } catch (e) {
+      debugPrint('Lỗi:${e.toString()}');
       throw ApiErrorHandler.handle(e);
     }
   }

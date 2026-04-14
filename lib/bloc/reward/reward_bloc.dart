@@ -5,7 +5,6 @@ import 'package:greenbin/bloc/reward/reward_state.dart';
 import 'package:greenbin/repositories/app_repository.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-import '../../configs/exception.dart';
 import '../../models/reward.dart';
 
 EventTransformer<T> debounce<T>(Duration duration) {
@@ -21,7 +20,8 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
       : _repo = repository,
         super(const RewardState()) {
     on<RewardFetched>(_onRewardFetched, transformer: restartable());
-    on<RewardLoadMoreFetched>(_onRewardLoadMoreFetched, transformer: droppable());
+    on<RewardLoadMoreFetched>(_onRewardLoadMoreFetched,
+        transformer: droppable());
     on<RewardFilterChanged>(_onRewardFilterChanged);
     on<RewardSortChanged>(_onRewardSortChanged);
     on<RewardSearchChanged>(_onRewardSearchChanged,
@@ -31,9 +31,9 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
   }
 
   Future<void> _onRewardFetched(
-      RewardFetched event,
-      Emitter<RewardState> emit,
-      ) async {
+    RewardFetched event,
+    Emitter<RewardState> emit,
+  ) async {
     emit(state.copyWith(status: RewardStatus.loading));
 
     try {
@@ -60,9 +60,9 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
   }
 
   Future<void> _onRewardLoadMoreFetched(
-      RewardLoadMoreFetched event,
-      Emitter<RewardState> emit,
-      ) async {
+    RewardLoadMoreFetched event,
+    Emitter<RewardState> emit,
+  ) async {
     if (!state.hasMore || state.status == RewardStatus.loadingMore) return;
 
     emit(state.copyWith(status: RewardStatus.loadingMore));
@@ -88,33 +88,33 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
   }
 
   void _onRewardFilterChanged(
-      RewardFilterChanged event,
-      Emitter<RewardState> emit,
-      ) {
-    try{
+    RewardFilterChanged event,
+    Emitter<RewardState> emit,
+  ) {
+    try {
       emit(state.copyWith(filter: event.filter, status: RewardStatus.loading));
       add(RewardFetched());
-    }catch(e){
+    } catch (e) {
       emit(state.copyWith(status: RewardStatus.failure));
     }
   }
 
   void _onRewardSortChanged(
-      RewardSortChanged event,
-      Emitter<RewardState> emit,
-      ) {
-    try{
+    RewardSortChanged event,
+    Emitter<RewardState> emit,
+  ) {
+    try {
       emit(state.copyWith(sortBy: event.sortBy, status: RewardStatus.loading));
       add(RewardFetched());
-    }catch(e){
+    } catch (e) {
       emit(state.copyWith(status: RewardStatus.failure));
     }
   }
 
   Future<void> _onRewardSearchChanged(
-      RewardSearchChanged event,
-      Emitter<RewardState> emit,
-      ) async {
+    RewardSearchChanged event,
+    Emitter<RewardState> emit,
+  ) async {
     emit(state.copyWith(
       searchQuery: event.query,
       status: RewardStatus.loading,
@@ -142,9 +142,9 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
   }
 
   void _onRewardResetAll(
-      RewardResetAll event,
-      Emitter<RewardState> emit,
-      ) {
+    RewardResetAll event,
+    Emitter<RewardState> emit,
+  ) {
     emit(state.copyWith(
       sortBy: RewardSort.newest,
       filter: RewardFilterCriteria.all,
@@ -156,9 +156,9 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
   }
 
   Future<void> _onRedeemReward(
-      RedeemReward event,
-      Emitter<RewardState> emit,
-      ) async {
+    RedeemReward event,
+    Emitter<RewardState> emit,
+  ) async {
     emit(state.copyWith(redeemStatus: RedeemStatus.loading));
 
     try {
@@ -175,5 +175,4 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
       ));
     }
   }
-
 }

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:greenbin/widgets/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../bloc/app/app_cubit.dart';
@@ -445,23 +446,14 @@ class _CreateReportPageState extends State<CreateReportPage> {
               ),
               elevation: 0,
             ),
-            child: isLoading
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Text(
-                    'GỬI BÁO CÁO',
-                    style: TextStyle(
-                      fontSize: AppFontSize.labelLarge,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
+            child: const Text(
+              'GỬI BÁO CÁO',
+              style: TextStyle(
+                fontSize: AppFontSize.labelLarge,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),
@@ -476,6 +468,13 @@ class _CreateReportPageState extends State<CreateReportPage> {
       listenWhen: (prev, curr) =>
           curr.action == ReportAction.create && curr.status != prev.status,
       listener: (context, state) {
+
+        if(state.status==ReportStatusState.loading){
+          AppDialog.showLoading(context);
+        }else{
+          AppDialog.hideLoading(context);
+        }
+
         if (state.status == ReportStatusState.success) {
           _showSnackBar('Tạo báo cáo thành công!');
 

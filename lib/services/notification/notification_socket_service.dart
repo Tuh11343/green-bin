@@ -10,7 +10,8 @@ typedef BinFullCallback = void Function(int binId, double fillLevel);
 class NotificationSocketService {
   Socket? _socket;
   final String _baseUrl;
-  int userId;
+  late int userId;
+  bool _isConnected = false;
 
   NotificationCallback? onReportCreated;
   NotificationCallback? onReportApproved;
@@ -18,7 +19,6 @@ class NotificationSocketService {
 
   NotificationSocketService({
     required String baseUrl,
-    required this.userId,
   }) : _baseUrl = baseUrl;
 
   void updateUserId({required int userId}) {
@@ -26,6 +26,13 @@ class NotificationSocketService {
   }
 
   void connect({required String token}) {
+    if (_isConnected || _socket?.connected == true) {
+      debugPrint('⚠️ Socket already connected or connecting');
+      return;
+    }
+
+    debugPrint('Đăng ký socket');
+
     _socket = io(
       _baseUrl,
       OptionBuilder()
@@ -36,12 +43,13 @@ class NotificationSocketService {
     );
 
     _socket!.onConnect((_) {
+      _isConnected = true;
       debugPrint('[Socket] Connected — userId: $userId');
-      // Join room cá nhân
       _socket!.emit('join_room', userId);
     });
 
     _socket!.onDisconnect((_) {
+      _isConnected = false;
       debugPrint('[Socket] Disconnected');
     });
 
@@ -53,10 +61,8 @@ class NotificationSocketService {
   }
 
   void _registerEvents() {
-
     _socket!.onAny((event, data) {
-      debugPrint('===> [SOCKET DEBUG] Nhận event: $event');
-      debugPrint('===> [SOCKET DEBUG] Data thô: $data');
+      debugPrint('===> [SOCKET DEBUG] Event: $event, Data: $data');
     });
 
     _socket!.on('report:created', (data) {
@@ -104,13 +110,29 @@ class NotificationSocketService {
     });
   }
 
+  Future<void> disconnect() async {
+    if (_socket != null) {
+      // Remove all listeners
+      _socket!.clearListeners();
 
-  void disconnect() {
-    _socket?.disconnect();
-    _socket?.dispose();
-    _socket = null;
-    debugPrint('[Socket] Disposed');
+      // Disconnect
+      _socket!.disconnect();
+
+      // Dispose
+      _socket!.dispose();
+
+      _socket = null;
+      _isConnected = false;
+
+      debugPrint('[Socket] Properly disconnected & disposed');
+    }
   }
 
-  bool get isConnected => _socket?.connected ?? false;
+  void clearCallbacks() {
+    onReportCreated = null;
+    onReportApproved = null;
+    onBinFull = null;
+  }
+
+  bool get isConnected => _isConnected && _socket?.connected == true;
 }

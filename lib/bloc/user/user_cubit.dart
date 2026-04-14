@@ -60,6 +60,7 @@ class UserCubit extends Cubit<UserState> {
   Future<void> logOut() async{
     try{
       await _repo.user.logOut();
+      AppEventBus().emit(UserLogoutEvent());
       emit(state.copyWith(user: null));
     }catch(e){
       emit(state.copyWith(

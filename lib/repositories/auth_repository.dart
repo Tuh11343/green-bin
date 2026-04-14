@@ -113,6 +113,7 @@ class AuthRepository implements IAuthRepository {
       await _firebaseAuth.signOut();
       rethrow;
     } catch (e) {
+      debugPrint(e.toString());
       throw UnknownException("Lỗi không xác định ở repository");
     }
   }

@@ -12,7 +12,6 @@ class Bin extends Equatable {
   final DateTime? lastEmptiedAt;
   final String? addressName;
 
-
   const Bin({
     this.id,
     required this.latitude,

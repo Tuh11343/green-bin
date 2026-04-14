@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:greenbin/bloc/user_setting/user_profile_state.dart';
 
@@ -43,9 +44,10 @@ class UserProfileCubit extends Cubit<UserProfileState> {
           message: 'Cập nhật thành công',
           user: updatedUser));
     } catch (e) {
+      debugPrint(e.toString());
       emit(state.copyWith(
         status: UserProfileStatus.failure,
-        message: e.toString(),
+        message: 'Có lỗi xảy ra khi cập nhật',
       ));
     }
   }

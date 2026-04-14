@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:greenbin/bloc/app/app_cubit.dart';
+import 'package:greenbin/bloc/report/bin_selection/bin_list_bloc.dart';
 import 'package:greenbin/configs/api_endpoint.dart';
 import 'package:greenbin/repositories/app_repository.dart';
 import 'package:greenbin/routing/app_router.dart';
@@ -14,7 +15,6 @@ import 'bloc/network/network_cubit.dart';
 import 'bloc/network/network_service.dart';
 import 'bloc/notification/app_notification_cubit.dart';
 import 'bloc/point_transaction/redemption_history_cubit.dart';
-import 'bloc/report/bin_selection/bin_selection_cubit.dart';
 import 'bloc/report/report_cubit.dart';
 import 'bloc/report/user_report_history/user_report_history_bloc.dart';
 import 'bloc/reward/reward_bloc.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
 
   final notificationSocketService = NotificationSocketService(
     baseUrl: ApiEndpoints.baseUrl,
-    userId: 0, // placeholder, sẽ update sau khi login
+    // userId: 0, // placeholder, sẽ update sau khi login
   );
 
 // 2. Tạo dữ liệu giả lập cho Nhiệm vụ thu gom (CollectionTask)
@@ -72,7 +72,6 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => UserCubit(AppRepository())),
         BlocProvider(create: (context) => ReportCubit(AppRepository())),
         BlocProvider(create: (context) => AppCubit(AppRepository())),
-        BlocProvider(create: (context) => BinSelectionCubit(AppRepository())),
         BlocProvider(create: (context) => RedemptionHistoryBloc(repository: AppRepository())),
         BlocProvider(create: (context) => UserReportHistoryBloc(repository: AppRepository())),
         BlocProvider(
@@ -82,6 +81,8 @@ class MyApp extends StatelessWidget {
             notificationService: NotificationService(),
           ),
         ),
+        BlocProvider(create: (context) => BinListBloc(repo: AppRepository())),
+
 
       ],
       child: MaterialApp.router(

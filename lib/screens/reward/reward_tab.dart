@@ -25,7 +25,6 @@ class _RewardProductTabState extends State<RewardProductTab>
   @override
   bool get wantKeepAlive => true;
 
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +39,6 @@ class _RewardProductTabState extends State<RewardProductTab>
       ..dispose();
     super.dispose();
   }
-
 
   void _onScroll() {
     final max = _scrollController.position.maxScrollExtent;
@@ -57,16 +55,17 @@ class _RewardProductTabState extends State<RewardProductTab>
     return BlocListener<RewardBloc, RewardState>(
         listenWhen: (prev, curr) => prev.redeemStatus != curr.redeemStatus,
         listener: (context, state) {
-          // if (state.redeemStatus != RedeemStatus.loading &&
-          //     Navigator.of(context).canPop()) {
-          //   Navigator.of(context).pop();
-          // }
           if (state.redeemStatus == RedeemStatus.loading) {
-            // AppDialog.showLoading(context);
-          } else if (state.redeemStatus == RedeemStatus.success) {
+            AppDialog.showLoading(context);
+          } else {
+            AppDialog.hideLoading(context);
+          }
+
+          if (state.redeemStatus == RedeemStatus.success) {
             AppDialog.showAlert(context,
                 title: 'Thông báo', message: 'Đổi quà thành công');
-          } else if (state.redeemStatus == RedeemStatus.failure) {
+          }
+          if (state.redeemStatus == RedeemStatus.failure) {
             AppDialog.showAlert(context,
                 title: 'Lỗi', message: 'Đổi quà thất bại');
           }
@@ -94,18 +93,22 @@ class _RewardProductTabState extends State<RewardProductTab>
                         context.read<RewardBloc>().add(RewardFetched()),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                        final crossAxisCount =
+                            constraints.maxWidth > 600 ? 3 : 2;
                         return GridView.builder(
-                          controller: _scrollController, // 👈 thêm
+                          controller: _scrollController,
+                          // 👈 thêm
                           padding: const EdgeInsets.all(16),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
                             mainAxisExtent: 220,
                           ),
                           // 👇 +1 để chứa loading indicator ở cuối
-                          itemCount: state.rewards.length + (state.hasMore ? 1 : 0),
+                          itemCount:
+                              state.rewards.length + (state.hasMore ? 1 : 0),
                           itemBuilder: (context, index) {
                             // Item cuối = loading indicator
                             if (index == state.rewards.length) {
@@ -170,7 +173,8 @@ class _RewardProductTabState extends State<RewardProductTab>
                     showModalBottomSheet(
                       context: context,
                       shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(16))),
                       builder: (context) {
                         return const _ProductSortFilterSheet();
                       },
@@ -187,7 +191,6 @@ class _RewardProductTabState extends State<RewardProductTab>
       ),
     );
   }
-
 }
 
 class _ProductSortFilterSheet extends StatelessWidget {
@@ -214,7 +217,7 @@ class _ProductSortFilterSheet extends StatelessWidget {
                     context.read<RewardBloc>().add(RewardResetAll());
                   },
                   child: const CustomText('Đặt lại',
-                      color: Colors.grey, fontSize: AppFontSize.bodyMedium),
+                      color: Colors.black, fontSize: AppFontSize.bodyMedium),
                 ),
               ],
             ),
@@ -230,20 +233,20 @@ class _ProductSortFilterSheet extends StatelessWidget {
               children: [
                 _SortChip(
                     label: 'Mới nhất',
-                    value: RewardSort.newest,
-                    current: state.sortBy),
+                    rewardSort: RewardSort.newest,
+                    currentRewardSort: state.sortBy),
                 _SortChip(
                     label: 'Cũ nhất',
-                    value: RewardSort.oldest,
-                    current: state.sortBy),
+                    rewardSort: RewardSort.oldest,
+                    currentRewardSort: state.sortBy),
                 _SortChip(
                     label: 'Điểm thấp → cao',
-                    value: RewardSort.pointLowHigh,
-                    current: state.sortBy),
+                    rewardSort: RewardSort.pointLowHigh,
+                    currentRewardSort: state.sortBy),
                 _SortChip(
                     label: 'Điểm cao → thấp',
-                    value: RewardSort.pointHighLow,
-                    current: state.sortBy),
+                    rewardSort: RewardSort.pointHighLow,
+                    currentRewardSort: state.sortBy),
               ],
             ),
             const SizedBox(height: 16),
@@ -258,16 +261,16 @@ class _ProductSortFilterSheet extends StatelessWidget {
               children: [
                 _FilterChip(
                     label: 'Tất cả',
-                    value: RewardFilterCriteria.all,
-                    current: state.filter),
+                    rewardFilterCriteria: RewardFilterCriteria.all,
+                    currentRewardFilterCriteria: state.filter),
                 _FilterChip(
                     label: 'Còn hàng',
-                    value: RewardFilterCriteria.inStock,
-                    current: state.filter),
+                    rewardFilterCriteria: RewardFilterCriteria.inStock,
+                    currentRewardFilterCriteria: state.filter),
                 _FilterChip(
                     label: 'Hết hàng',
-                    value: RewardFilterCriteria.outOfStock,
-                    current: state.filter),
+                    rewardFilterCriteria: RewardFilterCriteria.outOfStock,
+                    currentRewardFilterCriteria: state.filter),
               ],
             ),
           ],
@@ -279,21 +282,28 @@ class _ProductSortFilterSheet extends StatelessWidget {
 
 class _SortChip extends StatelessWidget {
   final String label;
-  final RewardSort value;
-  final RewardSort current;
+  final RewardSort rewardSort;
+  final RewardSort currentRewardSort;
 
   const _SortChip(
-      {required this.label, required this.value, required this.current});
+      {required this.label,
+      required this.rewardSort,
+      required this.currentRewardSort});
 
   @override
   Widget build(BuildContext context) {
-    final selected = current == value;
+    final selected = currentRewardSort == rewardSort;
     return ChoiceChip(
       label: Text(label),
       selected: selected,
-      onSelected: (_) =>
-          context.read<RewardBloc>().add(RewardSortChanged(value)),
-      selectedColor: Theme.of(context).primaryColor.withOpacity(0.15),
+      onSelected: (value) {
+        if (currentRewardSort == rewardSort) {
+          return;
+        } else {
+          context.read<RewardBloc>().add(RewardSortChanged(rewardSort));
+        }
+      },
+      selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.15),
       labelStyle: TextStyle(
         color: selected ? Theme.of(context).primaryColor : null,
         fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
@@ -304,20 +314,26 @@ class _SortChip extends StatelessWidget {
 
 class _FilterChip extends StatelessWidget {
   final String label;
-  final RewardFilterCriteria value;
-  final RewardFilterCriteria current;
+  final RewardFilterCriteria rewardFilterCriteria;
+  final RewardFilterCriteria currentRewardFilterCriteria;
 
   const _FilterChip(
-      {required this.label, required this.value, required this.current});
+      {required this.label,
+      required this.rewardFilterCriteria,
+      required this.currentRewardFilterCriteria});
 
   @override
   Widget build(BuildContext context) {
-    final selected = current == value;
+    final selected = currentRewardFilterCriteria == rewardFilterCriteria;
     return ChoiceChip(
       label: Text(label),
       selected: selected,
-      onSelected: (_) =>
-          context.read<RewardBloc>().add(RewardFilterChanged(value)),
+      onSelected: (value) {
+        context.read<RewardBloc>().add(RewardFilterChanged(
+            rewardFilterCriteria == currentRewardFilterCriteria
+                ? RewardFilterCriteria.all
+                : rewardFilterCriteria));
+      },
       selectedColor: Theme.of(context).primaryColor.withOpacity(0.15),
       labelStyle: TextStyle(
         color: selected ? Theme.of(context).primaryColor : null,

@@ -76,21 +76,22 @@ class UserHomePageState extends State<UserHomePage> {
             current.user != null &&
             current.token != null,
         listener: (context, state) {
-            print("DEBUG: User đã sẵn sàng, thực hiện kết nối Socket...");
-            context.read<AppNotificationCubit>().connectSocket(
-                  userId: state.user!.id!,
-                  token: state.token!,
-                );
+          print("DEBUG: User đã sẵn sàng, thực hiện kết nối Socket...");
+          context.read<AppNotificationCubit>().connectSocket(
+            userId: state.user!.id!,
+            token: state.token!,
+          );
         },
         child: Scaffold(
           drawer: const CustomAppDrawer(),
           appBar: AppBar(
             centerTitle: true,
             leading: Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+              builder: (context) =>
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
             ),
             title: _buildAppBarTitle(),
             backgroundColor: AppColors.primary,
@@ -338,7 +339,8 @@ class UserHomePageState extends State<UserHomePage> {
           const SizedBox(height: 10),
           BlocBuilder<ReportCubit, ReportState>(
             buildWhen: (previous, current) {
-              return previous.status!=current.status || previous.action!=current.action;
+              return previous.status != current.status ||
+                  previous.action != current.action;
             },
             builder: (context, state) {
               if (state.status == ReportStatusState.loading) {
@@ -373,7 +375,10 @@ class UserHomePageState extends State<UserHomePage> {
   }
 
   Widget _buildQuickTasksGrid() {
-    final itemWidth = (MediaQuery.of(context).size.width - 40 - 12) / 2;
+    final itemWidth = (MediaQuery
+        .of(context)
+        .size
+        .width - 40 - 12) / 2;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -390,7 +395,7 @@ class UserHomePageState extends State<UserHomePage> {
               task['cardColor'],
               task['titleColor'],
               task['descriptionColor'],
-              () {
+                  () {
                 if (task['title'] == 'Báo cáo') {
                   debugPrint('gọi đi');
                   context.pushNamed('report');
@@ -407,15 +412,13 @@ class UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget buildQuickTaskCard(
-    IconData icon,
-    String title,
-    String description,
-    Color cardColor,
-    Color titleColor,
-    Color descriptionColor,
-    VoidCallback onTap,
-  ) {
+  Widget buildQuickTaskCard(IconData icon,
+      String title,
+      String description,
+      Color cardColor,
+      Color titleColor,
+      Color descriptionColor,
+      VoidCallback onTap,) {
     return GestureDetector(
       onTap: onTap,
       // borderRadius: BorderRadius.circular(14),
@@ -451,11 +454,9 @@ class UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget buildActivityItem(
-    Report report,
-    IconData icon,
-    Color iconColor,
-  ) {
+  Widget buildActivityItem(Report report,
+      IconData icon,
+      Color iconColor,) {
     final isCompleted = report.status == ReportStatus.completed;
 
     return CustomCard(

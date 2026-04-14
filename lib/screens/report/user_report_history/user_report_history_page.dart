@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:greenbin/screens/report/user_report_detail_page.dart';
+import 'package:greenbin/widgets/dialog.dart';
 
 import '../../../bloc/app/app_cubit.dart';
 import '../../../bloc/report/user_report_history/user_report_history_bloc.dart';
@@ -24,8 +25,12 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AppCubit>().toggleBottomBar(false);
-    context.read<UserReportHistoryBloc>().add(const FetchReportsEvent());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        context.read<AppCubit>().toggleBottomBar(false);
+        context.read<UserReportHistoryBloc>().add(const FetchReportsEvent());
+      },
+    );
     _scrollController.addListener(_onScroll);
   }
 
@@ -54,12 +59,12 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
     }
   }
 
-  final statusFilterLabels = <ReportStatus?, String>{
-    null: 'Tất cả',
-    ReportStatus.pending: 'Chưa xử lý',
-    ReportStatus.processing: 'Đang xử lý',
-    ReportStatus.completed: 'Hoàn thành',
-    ReportStatus.cancelled: 'Đã hủy',
+  final statusFilterLabels = <ReportFilterCriteria, String>{
+    ReportFilterCriteria.all: 'Tất cả',
+    ReportFilterCriteria.pending: 'Chưa xử lý',
+    ReportFilterCriteria.processing: 'Đang xử lý',
+    ReportFilterCriteria.completed: 'Hoàn thành',
+    ReportFilterCriteria.cancelled: 'Đã hủy',
   };
 
   void _showSortAndFilterBottomSheet() {
@@ -68,7 +73,8 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => BlocBuilder<UserReportHistoryBloc, UserReportHistoryState>(
+      builder: (_) =>
+          BlocBuilder<UserReportHistoryBloc, UserReportHistoryState>(
         builder: (context, state) => Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(
@@ -101,8 +107,7 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
                             .read<UserReportHistoryBloc>()
                             .add(ChangeSortByEvent(sortOption));
                       },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
@@ -144,22 +149,21 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
                 runSpacing: 8,
                 children: statusFilterLabels.entries.map((entry) {
                   final selected = state.filterCriteria == entry.key;
+
                   return GestureDetector(
                     onTap: () {
-                      // tap lại chip đang chọn → reset về null (Tất cả)
-                      final next = selected ? null : entry.key;
-                      context
-                          .read<UserReportHistoryBloc>()
-                          .add(ChangeFilterCriteriaEvent(next));
+                      context.read<UserReportHistoryBloc>().add(
+                          ChangeFilterCriteriaEvent(
+                              state.filterCriteria == entry.key
+                                  ? ReportFilterCriteria.all
+                                  : entry.key));
                     },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: selected
-                            ? AppColors.primary
-                            : Colors.transparent,
+                        color:
+                            selected ? AppColors.primary : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: selected
@@ -191,9 +195,9 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
-          if(didPop){
-            context.read<AppCubit>().toggleBottomBar(true);
-          }
+        if (didPop) {
+          context.read<AppCubit>().toggleBottomBar(true);
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -210,26 +214,37 @@ class UserReportHistoryPageState extends State<UserReportHistoryPage> {
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-        body: BlocBuilder<UserReportHistoryBloc, UserReportHistoryState>(
+        body: BlocConsumer<UserReportHistoryBloc, UserReportHistoryState>(
+          listener: (context, state) {
+            if (state.status == UserReportHistoryStatus.loading) {
+              AppDialog.showLoading(context);
+            } else {
+              AppDialog.hideLoading(context);
+            }
+          },
           builder: (context, state) {
-            return Column(
-              children: [
-                StatsBar(reports: state.reportResponses.toReportList()),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: _showSortAndFilterBottomSheet,
-                    icon: const Icon(Icons.tune_rounded),
-                    label: const Text('Lọc & Sắp xếp'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.black,
+            return BlocBuilder<UserReportHistoryBloc, UserReportHistoryState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    // StatsBar(reports: state.reportResponses.toReportList()),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: _showSortAndFilterBottomSheet,
+                        icon: const Icon(Icons.tune_rounded),
+                        label: const Text('Lọc & Sắp xếp'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.black,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Expanded(child: _buildBody(state)),
-              ],
+                    const SizedBox(height: 5),
+                    Expanded(child: _buildBody(state)),
+                  ],
+                );
+              },
             );
           },
         ),

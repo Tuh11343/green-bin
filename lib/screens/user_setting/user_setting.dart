@@ -22,6 +22,16 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   bool emailUpdates = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    },);
+
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -51,6 +61,9 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                 icon: Icons.person,
                 title: 'Thông tin cá nhân',
                 subtitle: 'Cập nhật hồ sơ của bạn',
+                onTap: () {
+                  context.pushNamed('updateProfile');
+                },
               ),
               _buildSettingsTile(
                 icon: Icons.security,
@@ -266,6 +279,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
     required IconData icon,
     required String title,
     required String subtitle,
+    VoidCallback? onTap,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -302,9 +316,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
         ),
         trailing:
             Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
-        onTap: () {
-          context.pushNamed('updateProfile');
-        },
+        onTap: onTap,
       ),
     );
   }

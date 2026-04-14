@@ -95,7 +95,7 @@ class ReportApi {
     int? cursor,
     required int limit,
     required UserReportHistorySort sortBy,
-    ReportStatus? reportStatus,
+    required ReportFilterCriteria filter,
   }) async {
     try {
       final response = await _dioClient.get(
@@ -103,8 +103,8 @@ class ReportApi {
         queryParameters: {
           if (cursor != null) 'cursor': cursor,
           'limit': limit,
-          'sortBy': sortBy.toString(),
-          'reportStatus':reportStatus?.name,
+          'sortBy': sortBy.name,
+          'filter':filter.name,
         },
       );
 

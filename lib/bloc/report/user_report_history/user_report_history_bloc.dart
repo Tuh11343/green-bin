@@ -34,7 +34,7 @@ class UserReportHistoryBloc
       final response = await _repository.report.getUserReportsPaginated(
         limit: _pageSize,
         sortBy: state.sortBy,
-        reportStatus: state.filterCriteria,
+        filter: state.filterCriteria,
         cursor: null,
       );
 
@@ -67,7 +67,7 @@ class UserReportHistoryBloc
       final response = await _repository.report.getUserReportsPaginated(
         limit: _pageSize,
         sortBy: state.sortBy,
-        reportStatus: state.filterCriteria,
+        filter: state.filterCriteria,
         cursor: state.nextCursor,
       );
 
@@ -93,6 +93,7 @@ class UserReportHistoryBloc
 
     emit(state.copyWith(
       sortBy: event.sortBy,
+      filterCriteria: state.filterCriteria,
       reportResponses: [],
       nextCursor: null,
       hasMore: true,
@@ -103,7 +104,7 @@ class UserReportHistoryBloc
       final response = await _repository.report.getUserReportsPaginated(
         limit: _pageSize,
         sortBy: event.sortBy,
-        reportStatus: state.filterCriteria,
+        filter: state.filterCriteria,
         cursor: null,
       );
 
@@ -128,7 +129,6 @@ class UserReportHistoryBloc
   ) async {
 
     emit(state.copyWith(
-      clearFilterCriteria: event.filterCriteria == null,
       filterCriteria: event.filterCriteria,
       reportResponses: [],
       nextCursor: null,
@@ -140,7 +140,7 @@ class UserReportHistoryBloc
       final response = await _repository.report.getUserReportsPaginated(
         limit: _pageSize,
         sortBy: state.sortBy,
-        reportStatus: event.filterCriteria,
+        filter: event.filterCriteria,
         cursor: null,
       );
 

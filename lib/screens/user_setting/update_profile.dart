@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:greenbin/bloc/app/app_cubit.dart';
 import 'package:greenbin/widgets/dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -52,13 +52,19 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
 
     final currentUser = context.read<UserCubit>().state.user;
 
-    context.read<AppCubit>().toggleBottomBar(false);
-
     _nameController = TextEditingController(text: currentUser?.name ?? '');
     _emailController = TextEditingController(text: currentUser?.email ?? '');
     _currentPasswordController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        if (mounted) {
+          context.read<AppCubit>().toggleBottomBar(false);
+        }
+      },
+    );
   }
 
   @override
@@ -138,24 +144,22 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
       listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
         if (state.status == UserProfileStatus.loading) {
-          debugPrint('Dang loading');
-          // AppDialog.showLoading(context);
-          return;
+          AppDialog.showLoading(context);
         }
 
-        // //Đóng loading dialog
-        // if (Navigator.of(context, rootNavigator: true).canPop()) {
-        //   Navigator.of(context, rootNavigator: true).pop();
-        // }
+        if(state.status!=UserProfileStatus.loading){
+          AppDialog.hideLoading(context);
+        }
 
         if (state.status == UserProfileStatus.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message ?? 'Cập nhật thành công'),
-              backgroundColor: AppColors.primary,
-            ),
+          AppDialog.showAlert(
+            context,
+            title: 'Thông báo',
+            message: 'Cập nhật thành công',
+            onAction: () {
+              context.pop();
+            },
           );
-          Navigator.pop(context);
         }
 
         if (state.status == UserProfileStatus.failure) {
@@ -164,7 +168,7 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
         }
       },
       builder: (context, state) {
-        User? truthUser = context.read<UserCubit>().state.user;
+        User? user = context.read<UserCubit>().state.user;
 
         return PopScope(
             canPop: true,
@@ -196,7 +200,7 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
                     children: [
                       _buildAvatarSection(
                         localImage: state.imageBytes,
-                        remoteUrl: truthUser?.imageUrl,
+                        remoteUrl: user?.imageUrl,
                       ),
                       const SizedBox(height: 32),
 
@@ -221,7 +225,7 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
                       ),
 
                       // Chỉ hiện đổi mật khẩu nếu không phải social login
-                      if (truthUser?.isSocialLogin == false) ...[
+                      if (user?.isSocialLogin == false) ...[
                         const SizedBox(height: 24),
                         _buildSectionHeader('Đổi mật khẩu'),
                         _buildPasswordFields(),
@@ -336,9 +340,7 @@ class _UpdateProfileViewState extends State<_UpdateProfileView> {
       child: ElevatedButton(
         onPressed:
             isLoading ? null : () => _onSubmit(context, state.imageBytes),
-        child: isLoading
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const CustomText('Lưu thay đổi'),
+        child: const CustomText('Lưu thay đổi'),
       ),
     );
   }

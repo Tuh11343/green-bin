@@ -28,7 +28,7 @@ class ChangeSortByEvent extends UserReportHistoryEvent {
 }
 
 class ChangeFilterCriteriaEvent extends UserReportHistoryEvent {
-  final ReportStatus? filterCriteria;
+  final ReportFilterCriteria filterCriteria;
 
   const ChangeFilterCriteriaEvent(this.filterCriteria);
 

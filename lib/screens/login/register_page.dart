@@ -82,9 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
             if (state.status == AuthStatus.loading) {
               AppDialog.showLoading(context);
             } else {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
+              AppDialog.hideLoading(context);
             }
 
             if (state.status == AuthStatus.failure) {
