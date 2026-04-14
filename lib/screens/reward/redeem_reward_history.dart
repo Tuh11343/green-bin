@@ -235,10 +235,10 @@ class _HistoryCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText('-${transaction.amount} ⭐',
+              CustomText('Số lượng: ${transaction.amount}',
                   fontSize: AppFontSize.bodyMedium,
                   fontWeight: FontWeight.bold,
-                  color: Colors.red),
+                  color: Colors.black),
               const SizedBox(height: 4),
               const _StatusTag(),
             ],

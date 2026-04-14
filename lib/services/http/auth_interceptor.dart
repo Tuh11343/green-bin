@@ -18,6 +18,7 @@ class AuthInterceptor extends Interceptor {
     ApiEndpoints.resendOtp,
     ApiEndpoints.googleSignIn,
     ApiEndpoints.logout,
+    ApiEndpoints.getAllBins,
   ];
 
   @override

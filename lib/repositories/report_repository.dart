@@ -23,7 +23,7 @@ abstract class IReportRepository {
       {required int limit,
       required UserReportHistorySort sortBy,
       int? cursor,
-      ReportStatus? reportStatus});
+      required ReportFilterCriteria filter});
 
   Future<Report> updateReportStatus({required Report report, Bin? bin});
 }
@@ -79,13 +79,13 @@ class ReportRepository implements IReportRepository {
       {required int limit,
         required UserReportHistorySort sortBy,
         int? cursor,
-        ReportStatus? reportStatus}) async {
+        required ReportFilterCriteria filter}) async {
     try {
       final result = await _api.getUserReportsPaginated(
           limit: limit,
           sortBy: sortBy,
           cursor: cursor,
-          reportStatus: reportStatus);
+          filter: filter);
       return result;
     } on AppException {
       rethrow;

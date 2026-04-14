@@ -1,10 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../configs/exception.dart';
 import '../models/search_result_map/search_result.dart';
-import '../services/api/geocoding_api.dart';
+import '../services/api/google_map_api.dart';
 
-class GeocodingRepository {
-  final GeocodingApi _geocodingApi = GeocodingApi();
+class GoogleMapRepository {
+  final GoogleMapApi _geocodingApi;
+
+  GoogleMapRepository({required GoogleMapApi api})
+      : _geocodingApi = api;
 
   // Hàm Search
   Future<List<SearchResult>> searchLocation({
@@ -14,16 +19,18 @@ class GeocodingRepository {
     String viewbox = '106.3,10.3,107.0,11.2',
   }) async {
     try {
-      final rawData = await _geocodingApi.searchLocation(
+      List<SearchResult> resultList= await _geocodingApi.searchLocation(
         query: query,
         limit: limit,
         countryCode: countryCode,
         viewbox: viewbox,
       );
-      return rawData.map((json) => SearchResult.fromJson(json)).toList();
+      return resultList;
+    } on AppException {
+      rethrow;
     } catch (e) {
-      print(e.toString());
-      return [];
+      debugPrint(e.toString());
+      throw UnknownException("Lỗi search location từ repo");
     }
   }
 

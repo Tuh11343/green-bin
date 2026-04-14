@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:greenbin/bloc/report/bin_selection/bin_list_bloc.dart';
+import 'package:greenbin/bloc/report/bin_selection/bin_list_event.dart';
+import 'package:greenbin/bloc/report/bin_selection/bin_list_state.dart';
 
-import '../../../bloc/report/bin_selection/bin_selection_cubit.dart';
-import '../../../bloc/report/bin_selection/bin_selection_state.dart';
 import '../../../configs/app_color.dart';
 import '../../../configs/font_size.dart';
 import '../../../models/bin.dart';
@@ -362,207 +363,135 @@ class FilterBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BinSelectionCubit, BinSelectionState>(
-      buildWhen: (prev, curr) {
-        return prev.filterCriteria != curr.filterCriteria ||
-            prev.filterFillLevel != curr.filterFillLevel;
-      },
+    return BlocBuilder<BinListBloc, BinListState>(
       builder: (context, state) {
+        final hasFilter =
+            state.filterCriteria != null || state.filterFillLevel != null;
+
         return Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// HEADER
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'Lọc thùng rác',
-                    style: TextStyle(
-                      fontSize: AppFontSize.headlineSmall,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textDark,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  if (state.hasFilters)
+                  if (hasFilter)
                     TextButton(
                       onPressed: () {
-                        context.read<BinSelectionCubit>().clearFilters();
+                        context.read<BinListBloc>().add(ClearFilter());
                         Navigator.pop(context);
                       },
-                      child: const Text('Xóa bộ lọc'),
+                      child: const Text('Xóa'),
                     ),
                 ],
               ),
-              const SizedBox(height: 20),
 
-              // Type filters
-              const Text(
-                'Loại thùng',
-                style: TextStyle(
-                  fontSize: AppFontSize.bodyMedium,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                children: [
-                  BinFilterChip(
-                    label: 'Hữu cơ',
-                    isSelected: state.filterCriteria == BinType.organic,
-                    onTap: () {
-                      context.read<BinSelectionCubit>().filterBinsByCriteria(
-                            state.filterCriteria == BinType.organic
-                                ? null
-                                : BinType.organic,
-                          );
-                    },
-                  ),
-                  BinFilterChip(
-                    label: 'Tái chế',
-                    isSelected: state.filterCriteria == BinType.recyclable,
-                    onTap: () {
-                      context.read<BinSelectionCubit>().filterBinsByCriteria(
-                            state.filterCriteria == BinType.recyclable
-                                ? null
-                                : BinType.recyclable,
-                          );
-                    },
-                  ),
-                  BinFilterChip(
-                    label: 'Vô cơ',
-                    isSelected: state.filterCriteria == BinType.non_recyclable,
-                    onTap: () {
-                      context.read<BinSelectionCubit>().filterBinsByCriteria(
-                            state.filterCriteria == BinType.non_recyclable
-                                ? null
-                                : BinType.non_recyclable,
-                          );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Fill level filters
-              const Text(
-                'Mức độ đầy',
-                style: TextStyle(
-                  fontSize: AppFontSize.bodyMedium,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textDark,
-                ),
+              /// TYPE
+              _buildSection(
+                title: 'Loại',
+                children: BinType.values.map((type) {
+                  return _chip(
+                    label: _getTypeName(type),
+                    selected: state.filterCriteria == type,
+                    onTap: () {
+                      context.read<BinListBloc>().add(
+                        UpdateFilter(
+                          type: state.filterCriteria == type ? null : type,
+                          fillLevel: state.filterFillLevel,
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
               ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                children: [
-                  BinFilterChip(
-                    label: 'Thấp',
-                    isSelected: state.filterFillLevel == FillLevel.low,
+
+              const SizedBox(height: 16),
+
+              /// FILL LEVEL
+              _buildSection(
+                title: 'Mức độ đầy',
+                children: FillLevel.values.map((level) {
+                  return _chip(
+                    label: _getLevelName(level),
+                    selected: state.filterFillLevel == level,
                     onTap: () {
-                      context.read<BinSelectionCubit>().filterBinsByFillLevel(
-                            state.filterFillLevel == FillLevel.low
-                                ? null
-                                : FillLevel.low,
-                          );
+                      context.read<BinListBloc>().add(
+                        UpdateFilter(
+                          type: state.filterCriteria,
+                          fillLevel:
+                          state.filterFillLevel == level ? null : level,
+                        ),
+                      );
                     },
-                  ),
-                  BinFilterChip(
-                    label: 'Trung bình',
-                    isSelected: state.filterFillLevel == FillLevel.medium,
-                    onTap: () {
-                      context.read<BinSelectionCubit>().filterBinsByFillLevel(
-                            state.filterFillLevel == FillLevel.medium
-                                ? null
-                                : FillLevel.medium,
-                          );
-                    },
-                  ),
-                  BinFilterChip(
-                    label: 'Cao',
-                    isSelected: state.filterFillLevel == FillLevel.high,
-                    onTap: () {
-                      context.read<BinSelectionCubit>().filterBinsByFillLevel(
-                            state.filterFillLevel == FillLevel.high
-                                ? null
-                                : FillLevel.high,
-                          );
-                    },
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
+
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'ÁP DỤNG',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: AppFontSize.labelLarge,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         );
       },
     );
   }
-}
 
-class FilterBadge extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const FilterBadge({super.key, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.filter_list, color: Colors.white, size: 16),
-            SizedBox(width: 4),
-            Text(
-              'Lọc',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: AppFontSize.labelSmall,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
+  /// 🔹 Section reusable
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, children: children),
+      ],
     );
+  }
+
+  /// 🔹 Chip reusable
+  Widget _chip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) => onTap(),
+    );
+  }
+
+  /// 🔹 Enum helpers
+  String _getTypeName(BinType type) {
+    switch (type) {
+      case BinType.organic:
+        return 'Hữu cơ';
+      case BinType.recyclable:
+        return 'Tái chế';
+      case BinType.non_recyclable:
+        return 'Vô cơ';
+    }
+  }
+
+  String _getLevelName(FillLevel level) {
+    switch (level) {
+      case FillLevel.low:
+        return 'Thấp';
+      case FillLevel.medium:
+        return 'Trung bình';
+      case FillLevel.high:
+        return 'Cao';
+    }
   }
 }

@@ -16,6 +16,7 @@ class AppNotificationCubit extends Cubit<AppNotificationState> {
   final NotificationSocketService _socketService;
   final NotificationService _notificationService;
   late final StreamSubscription _sub;
+  late final StreamSubscription _userLogoutSub;
 
   AppNotificationCubit({
     required AppRepository repo,
@@ -28,6 +29,10 @@ class AppNotificationCubit extends Cubit<AppNotificationState> {
 
     _sub = AppEventBus().on<CreateNewReportEvent>().listen((event) {
       getUserNotifications();
+    });
+
+    _userLogoutSub=AppEventBus().on<UserLogoutEvent>().listen((event){
+      _socketService.disconnect();
     });
   }
 
@@ -161,6 +166,7 @@ class AppNotificationCubit extends Cubit<AppNotificationState> {
   @override
   Future<void> close() {
     _sub.cancel();
+    _userLogoutSub.cancel();
     _socketService.disconnect();
     return super.close();
   }

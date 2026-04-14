@@ -61,7 +61,6 @@ class UserApi {
     Uint8List? imageBytes,
   }) async {
     try {
-      print('IMAGE BYTES: ${imageBytes?.length ?? 'NULL'}');
 
       // Tính ext bên ngoài fromMap cho gọn
       final String? imageExt =
@@ -88,7 +87,7 @@ class UserApi {
       );
       final Map<String, dynamic> actualData = res.data['data'];
       // Đút token từ bên ngoài vào bên trong map của user
-      actualData['user']['token'] = actualData['token'];
+      // actualData['user']['token'] = actualData['token'];
       return ApiParser.parseData(
           response: res, fromJson: User.fromJson, dataKey: 'user');
     } catch (e) {

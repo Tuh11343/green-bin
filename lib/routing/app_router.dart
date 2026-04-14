@@ -5,10 +5,12 @@ import 'package:greenbin/screens/login/login_page.dart';
 import 'package:greenbin/screens/login/register_page.dart';
 import 'package:greenbin/screens/notification/notification_page_user.dart';
 import 'package:greenbin/screens/report/bin_selection/bin_selection_page.dart';
+import 'package:greenbin/screens/report/create_report.dart';
 import 'package:greenbin/screens/user_home/user_home.dart';
 import 'package:greenbin/screens/user_setting/update_profile.dart';
 import 'package:greenbin/screens/user_setting/user_setting.dart';
 
+import '../models/bin.dart';
 import '../models/enums.dart';
 import '../screens/report/user_report_history/user_report_history_page.dart';
 import '../screens/reward/reward_page.dart';
@@ -27,7 +29,7 @@ class AppNavigation {
   static final _notificationNavKey =
       GlobalKey<NavigatorState>(debugLabel: 'notificationNav');
   static final _userSettingKey =
-  GlobalKey<NavigatorState>(debugLabel: '_userSettingKey');
+      GlobalKey<NavigatorState>(debugLabel: '_userSettingKey');
   static final _rewardNavKey =
       GlobalKey<NavigatorState>(debugLabel: 'rewardNavKey');
 
@@ -44,9 +46,11 @@ class AppNavigation {
 
   static final GoRouter router = GoRouter(
     initialLocation: initR,
-    debugLogDiagnostics: false, //bật nếu muốn kiểm tra điều hướng
+    debugLogDiagnostics: false,
+    //bật nếu muốn kiểm tra điều hướng
     navigatorKey: rootNavigatorKey,
     redirect: (context, state) async {
+      // return '/binList';
       final user = await AppStorage.getUser();
 
       final isAuthRoute = state.matchedLocation.startsWith('/login');
@@ -83,6 +87,11 @@ class AppNavigation {
             ),
           ]),
 
+      // GoRoute(
+      //     path: '/binList',
+      //     name: 'binList',
+      //     builder: (context, state) => const BinListSelectionPage()),
+
       // Các màn hình chính nằm trong Shell (Có BottomBar)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -104,10 +113,19 @@ class AppNavigation {
                           const UserReportHistoryPage(),
                     ),
                     GoRoute(
-                      path: 'report',
-                      name: 'report',
-                      builder: (context, state) => const BinSelectionPage(),
-                    ),
+                        path: 'report',
+                        name: 'report',
+                        builder: (context, state) =>
+                            const BinListSelectionPage(),
+                        routes: [
+                          GoRoute(
+                              path: 'createReport',
+                              name: 'createReport',
+                              builder: (context, state) {
+                                final bin = state.extra as Bin;
+                                return CreateReportPage(bin: bin);
+                              }),
+                        ]),
                   ]),
             ],
           ),

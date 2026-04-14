@@ -156,6 +156,12 @@ class AppDialog {
     );
   }
 
+  static void hideLoading(BuildContext context) {
+    if (Navigator.of(context, rootNavigator: true).canPop()) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
 
   static void showLogoutDialog(BuildContext context) {
     showDialog(
@@ -168,7 +174,7 @@ class AppDialog {
           content: const Text('Bạn có chắc muốn đăng xuất khỏi tài khoản này?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(sheetContext),
               child: const Text('Hủy', style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(

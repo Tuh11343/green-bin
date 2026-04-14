@@ -7,6 +7,7 @@ import 'package:greenbin/services/app_secure_storage.dart';
 import '../models/user.dart';
 import '../services/api/app_api.dart';
 import '../configs/exception.dart';
+import '../services/api/user_api.dart';
 import 'app_event_bus.dart';
 
 abstract class IUserRepository {
@@ -27,7 +28,11 @@ abstract class IUserRepository {
 }
 
 class UserRepository implements IUserRepository {
-  final _api = AppApi().user;
+  late final UserApi _api;
+
+  UserRepository({required UserApi api}) {
+    _api = api;
+  }
 
   @override
   Future<User?> getCurrentUser({bool forceRefresh = false}) async {
@@ -59,7 +64,6 @@ class UserRepository implements IUserRepository {
     String? newPassword,
   }) async {
     try {
-      // 1. Gọi API
       final updatedUser = await _api.updateUserProfile(
         name: name,
         currentPassword: currentPassword,
@@ -90,10 +94,10 @@ class UserRepository implements IUserRepository {
   }
 
   @override
-  Future<void> logOut() async{
-    try{
+  Future<void> logOut() async {
+    try {
       await AppStorage.clearAll();
-    }on AppException {
+    } on AppException {
       rethrow;
     } catch (e) {
       throw UnknownException("Lỗi cập nhật thông tin");
